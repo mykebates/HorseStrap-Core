@@ -1,0 +1,39 @@
+.flex {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+    li {
+        margin-bottom: 10px;
+        flex-basis: 22%;
+    }
+}
+
+
+.grid {
+    display: grid;
+    //grid-template-columns: repeat(3, 1fr);
+    grid-gap: 1em;
+
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+
+
+    li {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+
+        grid-template-areas: 
+        "artwork album"
+        "artwork brand";
+
+        img { grid-area: artwork; }
+        h1 { grid-area: album; }
+        h2 { grid-area: brand; }
+
+        @media only screen and (max-width: 1200px) {
+            grid-template-areas: 
+            "artwork artwork"
+            "album brand";
+        }
+    }
+}
