@@ -17,8 +17,8 @@ You shoudl be running 2.1 or greater.
 
 As long as Node is installed as well, you shoudl be good to roll.
 
-CD into the project folder and run `npm install`
+CD into the project folder and run `dotnet run` which will start the Kestel web server and automatically open the site in your browser.
 
-Once all of the node modules are installed, run `dotnet run` which will start the kestrel web server. With this running you can run the website.
+The site is available at at localhost:3000 through BrowserSync which is proxying the .NET Core app from https://localhost:5001. Instructions on how to tweak these ports coming soon.
 
-If you want to work on the site, in a second terminal window run `npm run dev` and this will proxy the kestrel site and launch a browser window with browsersync. This will allow live updates to cshtml, css, js, to be pushed to the browser. .cs changes will NOT livereload.
+Styles are located at ~/assets/sass/ and updates to them will be automatically be injected via WebPack. Changes to any Razor(.cshtml) files will trigger a browser refresh through BrowerSync. This will result in far fewer manual browser refreshing.

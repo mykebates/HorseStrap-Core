@@ -36,3 +36,6 @@ msbuild.wrn
 # HorseStrap
 node_modules
 .idea
+horse.js
+horse.js.map
+wwwroot/css/styles.css
