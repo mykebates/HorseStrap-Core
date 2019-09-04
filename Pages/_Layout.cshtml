@@ -1,3 +1,6 @@
+@{
+    var request = Context.Request;
+}
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,9 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
 
-    <environment exclude="Development">
-        <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
-    </environment>
+    @if (request.QueryString.ToString().Contains("horse_build"))
+    {
+        <link rel="stylesheet" href="/css/styles.css" asp-append-version="true" />   
+    }
 
     @RenderSection("TopScripts", required: false)
 
@@ -22,7 +26,10 @@
 <script src="~/js/main.js" asp-append-version="true"></script>
 
 <environment include="Development">
-    <script src="~/horse.js"></script>
+    @if (!request.QueryString.ToString().Contains("horse_build"))
+    {
+        <script src="~/horse.js"></script>   
+    }
 </environment>
 
 @RenderSection("Scripts", required: false)
