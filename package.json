@@ -9,7 +9,7 @@
         "browser-sync-webpack-plugin": "^2.0.1",
         "css-loader": "^1.0.1",
         "mini-css-extract-plugin": "^0.4.5",
-        "node-sass": "^4.10.0",
+        "node-sass": "^7.0.0",
         "sass-loader": "^7.1.0",
         "style-loader": "^0.23",
         "webpack": "^4.27.0",
