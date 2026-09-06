@@ -1,0 +1,166 @@
+/* =========================================================================
+   fonts.css — custom webfonts, ready to go
+
+   Nothing here is active by default. The starter ships on system fonts
+   so a fresh clone renders instantly with zero network cost.
+
+   TO ADD A FONT
+   1. Drop the .woff2 file(s) into wwwroot/fonts/
+   2. Uncomment ONE of the blocks below and fix the family name + filename
+   3. Put that family name at the front of --font-sans (or --font-serif /
+      --font-mono) in tokens.css
+
+   That's the whole process. No build step, no config, no npm.
+
+   WHY woff2 ONLY
+   The old HorseStrap shipped every face five times (.eot, .svg, .ttf,
+   .woff, .woff2) for IE8 and old Android. woff2 has been supported
+   everywhere for years and compresses ~30% better than woff. One file
+   per face is correct now.
+   ========================================================================= */
+
+
+/* -------------------------------------------------------------------------
+   OPTION A — Variable font (recommended)
+
+   One file covers every weight from 100 to 900, usually smaller than two
+   or three static cuts. You also get every weight in between, so
+   font-weight: 550 is a real thing you can use.
+   ------------------------------------------------------------------------- */
+
+/*
+@font-face {
+    font-family: "Your Variable Font";
+    src: url("/fonts/your-variable-font.woff2") format("woff2-variations"),
+         url("/fonts/your-variable-font.woff2") format("woff2");
+    font-weight: 100 900;
+    font-stretch: 75% 125%;
+    font-style: normal;
+    font-display: swap;
+}
+*/
+
+/* Matching italic cut, if the family has one. */
+/*
+@font-face {
+    font-family: "Your Variable Font";
+    src: url("/fonts/your-variable-font-italic.woff2") format("woff2-variations"),
+         url("/fonts/your-variable-font-italic.woff2") format("woff2");
+    font-weight: 100 900;
+    font-stretch: 75% 125%;
+    font-style: italic;
+    font-display: swap;
+}
+*/
+
+
+/* -------------------------------------------------------------------------
+   OPTION B — Static weights
+
+   One @font-face per weight. Only declare the weights you actually use;
+   every extra file is another download.
+
+   Note all three blocks share ONE font-family name and differ only by
+   font-weight. That is what lets the browser pick the right file when
+   you write font-weight: 700. Never name them "Font Bold" — that breaks
+   synthesis and fallback.
+   ------------------------------------------------------------------------- */
+
+/*
+@font-face {
+    font-family: "Your Font";
+    src: url("/fonts/your-font-regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Your Font";
+    src: url("/fonts/your-font-medium.woff2") format("woff2");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Your Font";
+    src: url("/fonts/your-font-bold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+*/
+
+
+/* -------------------------------------------------------------------------
+   OPTION C — Subset a large face to the glyphs you need
+
+   unicode-range tells the browser to download a file ONLY if the page
+   actually uses a character in that range. Latin-only pages never fetch
+   the Cyrillic or Greek cuts.
+   ------------------------------------------------------------------------- */
+
+/*
+@font-face {
+    font-family: "Your Font";
+    src: url("/fonts/your-font-latin.woff2") format("woff2");
+    font-weight: 100 900;
+    font-display: swap;
+    unicode-range:
+        U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+        U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC,
+        U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+*/
+
+
+/* -------------------------------------------------------------------------
+   ELIMINATING LAYOUT SHIFT (the good part)
+
+   font-display: swap renders fallback text immediately, then swaps in the
+   webfont. Good for speed, but the swap visibly reflows the page if the
+   two fonts have different metrics — that's your CLS score tanking.
+
+   The fix: declare a fallback face that has been distorted to match your
+   webfont's metrics exactly. Text occupies identical space before and
+   after the swap, so the swap becomes invisible.
+
+   Generate the four numbers with:  https://screenspan.net/fallback
+   (or the `fontaine` / `next/font` tooling, which automate the same math)
+
+   Then reference the adjusted family in your stack, AFTER the real one:
+       --font-sans: "Your Font", "Your Font Fallback", system-ui, sans-serif;
+   ------------------------------------------------------------------------- */
+
+/*
+@font-face {
+    font-family: "Your Font Fallback";
+    src: local("Arial");
+    size-adjust: 107.2%;
+    ascent-override: 90.5%;
+    descent-override: 22.4%;
+    line-gap-override: 0%;
+}
+*/
+
+
+/* -------------------------------------------------------------------------
+   PRELOADING
+
+   A @font-face is only fetched once the CSS parses AND a rule matches,
+   which puts it late in the waterfall. For the one or two faces used
+   above the fold, add a preload hint to <head> in Pages/_Layout.cshtml:
+
+       <link rel="preload"
+             href="~/fonts/your-variable-font.woff2"
+             as="font"
+             type="font/woff2"
+             crossorigin />
+
+   The crossorigin attribute is REQUIRED even when self-hosting. Fonts are
+   fetched in anonymous CORS mode, and without it the browser downloads
+   the file twice.
+
+   Preload sparingly — every preload competes with your CSS for bandwidth.
+   ------------------------------------------------------------------------- */

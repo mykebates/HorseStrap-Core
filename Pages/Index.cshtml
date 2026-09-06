@@ -1,9 +1,86 @@
-﻿@page
+@page
+@model IndexModel
 @{
     ViewData["Title"] = "HorseStrap";
+    ViewData["Description"] = "A barebones ASP.NET Core starter kit.";
 }
 
-<div style="display: flex; align-items: flex-end; justify-content: center; height: 100vh; background: #3a333f;">
-    <audio src="/horse.mp3" autoplay></audio>
-    <img src="/images/nily.svg" alt="HorseStrap">
-</div>
+<main class="page-home">
+    <div class="home-inner">
+
+        <img src="~/images/nily.svg" alt="HorseStrap" class="home-logo" />
+
+        <h1>Saddle up.</h1>
+
+        <p>
+            .NET @Environment.Version.ToString(2) &middot; plain CSS &middot;
+            Alpine.js &middot; FontAwesome 7 &middot; zero build step
+        </p>
+
+        @*
+            Everything below is a live demo of the stack. Delete it and
+            start building.
+        *@
+
+        <div class="cluster" style="--cluster-justify: center;">
+
+            @* Alpine state + event binding, no JS file involved. *@
+            <button
+                class="button"
+                x-data="{ count: 0 }"
+                @@click="count++">
+                <i class="fa-solid fa-horse-head" aria-hidden="true"></i>
+                <span x-text="count ? `Giddyup &times;${count}` : 'Giddyup'"></span>
+            </button>
+
+            @* $refs + a method, all inline. *@
+            <div x-data="{ playing: false }">
+                <button
+                    class="button outline"
+                    @@click="playing = !playing; playing ? $refs.horse.play() : $refs.horse.pause()">
+                    <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                    <span x-text="playing ? 'Hush' : 'Hear it'"></span>
+                </button>
+
+                <audio
+                    x-ref="horse"
+                    src="~/horse.mp3"
+                    preload="none"
+                    @@ended="playing = false"></audio>
+            </div>
+
+        </div>
+
+        @* x-model two-way binding + x-for loop. *@
+        <div
+            class="stack"
+            style="--stack-space: var(--space-sm); inline-size: 100%;"
+            x-data="filterList([
+                { name: 'Appaloosa' },
+                { name: 'Clydesdale' },
+                { name: 'Mustang' },
+                { name: 'Palomino' },
+                { name: 'Shetland' }
+            ])">
+
+            <input
+                type="search"
+                x-model="query"
+                placeholder="Filter breeds&hellip;"
+                aria-label="Filter breeds" />
+
+            <ul role="list" class="cluster" style="--cluster-justify: center;">
+                <template x-for="item in results" :key="item.name">
+                    <li>
+                        <span class="button ghost small" x-text="item.name"></span>
+                    </li>
+                </template>
+            </ul>
+
+            <p class="text-sm" x-show="!results.length" x-cloak>
+                No breeds match that.
+            </p>
+        </div>
+
+    </div>
+</main>

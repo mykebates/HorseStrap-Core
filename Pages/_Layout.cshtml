@@ -1,38 +1,38 @@
-@{
-    var request = Context.Request;
-}
+@inject IWebHostEnvironment Env
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>@ViewData["Title"]</title>
+    <meta name="description" content="@ViewData["Description"]" />
 
-    @if (request.QueryString.ToString().Contains("horse_build"))
-    {
-        <link rel="stylesheet" href="/css/styles.css" asp-append-version="true" />   
-    }
+    <link rel="icon" href="~/favicon.ico" />
 
-    @RenderSection("TopScripts", required: false)
+    @*
+        One stylesheet. main.css pulls in everything else via @@import.
+        asp-append-version busts the cache on change.
+    *@
+    <link rel="stylesheet" href="~/css/main.css" asp-append-version="true" />
 
-    
+    @* FontAwesome 7 (self-hosted, woff2 only). Drop this line if unused. *@
+    <link rel="stylesheet" href="~/lib/fontawesome/fontawesome.min.css" asp-append-version="true" />
+
+    @*
+        Alpine must be deferred and must load BEFORE main.js runs its
+        alpine:init handler. `defer` on both preserves document order.
+    *@
+    <script defer src="~/js/main.js" type="module" asp-append-version="true"></script>
+    <script defer src="~/lib/alpine/alpine.min.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Head", required: false)
 </head>
-<body>
+<body data-env="@Env.EnvironmentName">
 
-@RenderBody()
+    @RenderBody()
 
-<script src="~/lib/jquery/dist/jquery.js"></script>
-<script src="~/js/plugins.js" asp-append-version="true"></script>
-<script src="~/js/main.js" asp-append-version="true"></script>
-
-<environment include="Development">
-    @if (!request.QueryString.ToString().Contains("horse_build"))
-    {
-        <script src="~/horse.js"></script>   
-    }
-</environment>
-
-@RenderSection("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 
 </body>
 </html>

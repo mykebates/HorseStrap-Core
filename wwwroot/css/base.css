@@ -1,0 +1,192 @@
+/* =========================================================================
+   base.css — bare element styling
+
+   Unclassed HTML should already look decent. Style ELEMENTS here;
+   components go in modules.css.
+   ========================================================================= */
+
+body {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    font-weight: var(--weight-normal);
+    color: var(--color-text);
+    background-color: var(--color-bg);
+}
+
+/* --- Headings --------------------------------------------------------- */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+}
+
+h1 { font-size: var(--text-3xl); }
+h2 { font-size: var(--text-2xl); }
+h3 { font-size: var(--text-xl); }
+h4 { font-size: var(--text-lg); }
+h5 { font-size: var(--text-base); }
+h6 {
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+/* --- Flow spacing -----------------------------------------------------
+   One rule instead of margins on every element. Every child gets top
+   margin EXCEPT the first, so containers never start with dead space
+   and you never write `&:last-child { margin-bottom: 0 }` again. */
+
+:is(h1, h2, h3, h4, h5, h6, p, ul, ol, dl, blockquote, pre, table, figure, hr)
+    + * {
+    margin-block-start: var(--flow-space, var(--space-md));
+}
+
+/* Headings hug the content that follows them. */
+:is(h1, h2, h3, h4, h5, h6) + * {
+    --flow-space: var(--space-sm);
+}
+
+/* ...and get extra breathing room above. */
+* + :is(h2, h3, h4) {
+    --flow-space: var(--space-xl);
+}
+
+/* --- Links ------------------------------------------------------------- */
+
+a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.15em;
+    transition: color var(--duration-fast) var(--ease-out);
+
+    &:hover {
+        color: var(--color-accent-hover);
+        text-decoration-thickness: 0.12em;
+    }
+}
+
+/* --- Lists ------------------------------------------------------------- */
+
+ul,
+ol {
+    padding-inline-start: var(--space-md);
+}
+
+li + li {
+    margin-block-start: var(--space-3xs);
+}
+
+/* --- Type details ------------------------------------------------------ */
+
+strong,
+b {
+    font-weight: var(--weight-bold);
+}
+
+small {
+    font-size: var(--text-sm);
+}
+
+blockquote {
+    padding-inline-start: var(--space-md);
+    border-inline-start: var(--border-thick) solid var(--color-accent);
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
+code,
+kbd,
+samp,
+pre {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+}
+
+code {
+    padding: 0.15em 0.4em;
+    background-color: var(--color-surface-raised);
+    border: var(--border-thin) solid var(--color-border);
+    border-radius: var(--radius-sm);
+}
+
+pre {
+    padding: var(--space-sm);
+    overflow-x: auto;
+    background-color: var(--color-surface-raised);
+    border: var(--border-thin) solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    /* Don't double up the chrome on a <code> inside a <pre>. */
+    & code {
+        padding: 0;
+        background: none;
+        border: none;
+    }
+}
+
+hr {
+    border: none;
+    border-block-start: var(--border-thin) solid var(--color-border);
+}
+
+/* --- Tables ------------------------------------------------------------ */
+
+table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    text-align: start;
+}
+
+th,
+td {
+    padding: var(--space-2xs) var(--space-xs);
+    border-block-end: var(--border-thin) solid var(--color-border);
+}
+
+th {
+    font-weight: var(--weight-medium);
+    text-align: start;
+}
+
+/* --- Forms -------------------------------------------------------------
+   Enough to keep forms usable. Real styling belongs in modules.css. */
+
+input,
+textarea,
+select {
+    padding: var(--space-2xs) var(--space-xs);
+    color: var(--color-text);
+    background-color: var(--color-surface);
+    border: var(--border-thin) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    transition: border-color var(--duration-fast) var(--ease-out);
+
+    &:focus-visible {
+        border-color: var(--color-accent);
+    }
+}
+
+textarea {
+    resize: vertical;
+}
+
+label {
+    font-weight: var(--weight-medium);
+}
+
+/* --- Alpine ------------------------------------------------------------
+   Alpine strips x-cloak once it initializes. Without this rule, markup
+   inside x-show / x-if flashes visible for a beat before Alpine boots. */
+
+[x-cloak] {
+    display: none !important;
+}

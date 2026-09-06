@@ -1,0 +1,117 @@
+/* =========================================================================
+   reset.css
+
+   Replaces the ~350 line normalize.css that used to live in
+   assets/sass/base/_normalize.scss.
+
+   Normalize existed to paper over IE and old WebKit inconsistencies that
+   no longer exist. What is left is the small set of browser defaults that
+   are genuinely unhelpful in 2026.
+   ========================================================================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Browsers ship a default margin on damn near everything. Start at zero
+   and add space deliberately. */
+* {
+    margin: 0;
+}
+
+html {
+    /* Smooth scroll for in-page anchors, but respect the OS setting. */
+    scroll-behavior: smooth;
+    /* Anchors land below a sticky header instead of under it. */
+    scroll-padding-block-start: var(--space-xl, 3rem);
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-block-size: 100svb;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Replaced elements are inline by default, which leaves a mysterious gap
+   under every image. */
+img,
+picture,
+video,
+canvas,
+svg {
+    display: block;
+    max-inline-size: 100%;
+    block-size: auto;
+}
+
+/* Form controls do not inherit typography without being told to. */
+input,
+button,
+textarea,
+select {
+    font: inherit;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+/* Long unbroken strings should not force horizontal scroll. */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    overflow-wrap: break-word;
+}
+
+/* Keep headings from ending on a lonely orphan word, and hold body copy
+   to a comfortable measure. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    text-wrap: balance;
+}
+
+p,
+li {
+    text-wrap: pretty;
+}
+
+ul[role="list"],
+ol[role="list"] {
+    list-style: none;
+    padding-inline-start: 0;
+}
+
+/* Never remove focus rings outright — replace them with something you
+   can actually see. */
+:focus-visible {
+    outline: 2px solid var(--color-accent, currentColor);
+    outline-offset: 2px;
+}
+
+/* Honor the user's motion preference. */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

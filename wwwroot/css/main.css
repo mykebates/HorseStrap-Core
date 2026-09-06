@@ -1,0 +1,29 @@
+/* =========================================================================
+   HorseStrap — main.css
+
+   The only stylesheet referenced by _Layout.cshtml. Everything else is
+   pulled in below.
+
+   Layer order is declared ONCE, here, on the first line that matters.
+   Because later layers always beat earlier layers regardless of selector
+   specificity, you never have to fight `!important` or count class names
+   again — just put a rule in the right layer.
+
+   Anything NOT in a layer beats everything that is. That is intentional:
+   it gives you an escape hatch for one-off overrides.
+   ========================================================================= */
+
+@layer reset, tokens, fonts, base, layout, modules, utilities, pages;
+
+/* Order of the @import lines below does not affect the cascade — the
+   @layer statement above already fixed that. They are listed in a
+   sensible reading order instead. */
+
+@import url("reset.css") layer(reset);
+@import url("tokens.css") layer(tokens);
+@import url("fonts.css") layer(fonts);
+@import url("base.css") layer(base);
+@import url("layout.css") layer(layout);
+@import url("modules.css") layer(modules);
+@import url("utilities.css") layer(utilities);
+@import url("pages.css") layer(pages);

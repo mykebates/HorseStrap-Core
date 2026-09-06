@@ -1,0 +1,99 @@
+/* =========================================================================
+   pages.css — page-specific styling
+
+   Last layer, so anything here wins. Use it for styles that apply to
+   exactly one page and would be noise in modules.css.
+
+   Scope with a class on the page's root element, matching the Razor page
+   name. If a block here starts looking reusable, promote it to
+   modules.css.
+   ========================================================================= */
+
+/* --- Home (Pages/Index.cshtml) ------------------------------------------
+   Delete this whole block once you start building for real. */
+
+.page-home {
+    display: grid;
+    place-items: center;
+    min-block-size: 100svb;
+    padding: var(--space-lg);
+    text-align: center;
+    background:
+        radial-gradient(
+            ellipse at 50% 0%,
+            var(--purple-700) 0%,
+            var(--purple-900) 55%,
+            var(--purple-950) 100%
+        );
+    color: var(--gray-100);
+
+    & .home-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-lg);
+        max-inline-size: 40rem;
+    }
+
+    & .home-logo {
+        inline-size: min(60vi, 22rem);
+        block-size: auto;
+        filter: drop-shadow(0 8px 24px oklch(0% 0 0 / 0.35));
+    }
+
+    & h1 {
+        font-size: var(--text-2xl);
+        margin: 0;
+    }
+
+    & p {
+        color: var(--gray-300);
+        text-wrap: pretty;
+    }
+
+    /* Inherit the light-on-dark treatment for links here. */
+    & a:not(.button) {
+        color: var(--purple-200);
+
+        &:hover {
+            color: #fff;
+        }
+    }
+}
+
+/* --- Build (Pages/Build.cshtml) ----------------------------------------- */
+
+.page-build {
+    padding-block: var(--space-xl);
+
+    & .build-field {
+        display: grid;
+        grid-template-columns: minmax(12rem, 18rem) 1fr;
+        gap: var(--space-sm);
+        align-items: center;
+
+        @media (width < 48rem) {
+            grid-template-columns: 1fr;
+            gap: var(--space-3xs);
+        }
+    }
+
+    & input[type="text"] {
+        inline-size: 100%;
+        max-inline-size: 34rem;
+    }
+
+    & .build-results {
+        max-block-size: 24rem;
+        overflow-y: auto;
+        padding: var(--space-sm);
+        background-color: var(--color-surface-raised);
+        border: var(--border-thin) solid var(--color-border);
+        border-radius: var(--radius-md);
+        font-family: var(--font-mono);
+        font-size: var(--text-sm);
+    }
+
+    & .build-ok { color: oklch(60% 0.15 150); }
+    & .build-fail { color: oklch(60% 0.19 25); }
+}

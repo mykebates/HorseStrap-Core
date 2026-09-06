@@ -1,24 +1,207 @@
 # HorseStrap
 
-![alternativetext](https://horsestrap.com/images/nily.svg)
+![HorseStrap](https://horsestrap.com/images/nily.svg)
 
-Requirements are
+A barebones ASP.NET Core starter kit. No build step, no bundler, no npm.
 
-- .NET Core 2.x
-- NodeJS(>=8)
+## Requirements
 
-To download .NET Core, grab the runtime
+**.NET 10 SDK.** That's the whole list.
 
-Mac - https://www.microsoft.com/net/download/macos
-Windows - https://www.microsoft.com/net/download/windows/build
+```sh
+dotnet --version    # expect 10.x
+```
 
-Install and confirm you have access to it globally by running `dotnet --version`
-You shoudl be running 2.1 or greater.
+Get it at <https://dotnet.microsoft.com/download>.
 
-As long as Node is installed as well, you shoudl be good to roll.
+Node is *not* required. Neither is npm, webpack, Sass, or a task runner.
 
-CD into the project folder and run `dotnet run` which will start the Kestel web server and automatically open the site in your browser.
+## Run it
 
-The site is available at at localhost:3000 through BrowserSync which is proxying the .NET Core app from https://localhost:5001. Instructions on how to tweak these ports coming soon.
+```sh
+dotnet watch
+```
 
-Styles are located at ~/assets/sass/ and updates to them will be automatically be injected via WebPack. Changes to any Razor(.cshtml) files will trigger a browser refresh through BrowerSync. This will result in far fewer manual browser refreshing.
+Opens <https://localhost:5001> with live reload wired up:
+
+| You change | What happens |
+| --- | --- |
+| `wwwroot/css/*.css` | stylesheet hot-swaps, **no page reload** |
+| `*.cshtml` | Razor hot reload |
+| `wwwroot/js/*.js` | browser refreshes |
+| `*.cs` | hot reload, or rebuild + restart if the edit can't be applied live |
+
+`dotnet run` also works if you don't want the watcher.
+
+## What's in the box
+
+| | |
+| --- | --- |
+| **.NET 10** | Razor Pages, minimal hosting |
+| **Plain CSS** | cascade layers, custom properties, native nesting |
+| **Alpine.js 3.17** | ~15KB, declarative interactivity |
+| **FontAwesome 7** | self-hosted, woff2 only |
+| **Static export** | render the whole site to flat HTML |
+
+Zero NuGet packages. Zero npm packages.
+
+## Layout
+
+```
+Pages/              Razor Pages
+  _Layout.cshtml    shell — the only place assets are referenced
+  Index.cshtml      home page (a live demo of the stack — delete it)
+  Build.cshtml      static site generator UI
+Classes/            supporting C#
+wwwroot/
+  css/              your stylesheets (see below)
+  js/main.js        your JS entry point
+  fonts/            drop custom .woff2 files here
+  lib/              vendored third-party (Alpine, FontAwesome)
+```
+
+## Styles
+
+Everything lives in `wwwroot/css/`. What you edit is what the browser gets —
+there is no compile step and no source maps to reason about.
+
+`main.css` is the only file referenced by the layout. It declares the cascade
+layer order and imports the rest:
+
+```css
+@layer reset, tokens, fonts, base, layout, modules, utilities, pages;
+```
+
+| File | What goes in it |
+| --- | --- |
+| `reset.css` | modern baseline, replaces normalize |
+| `tokens.css` | **all design decisions** — color, type, spacing, dark mode |
+| `fonts.css` | `@font-face` declarations |
+| `base.css` | bare element styling |
+| `layout.css` | container, stack, cluster, grid, sidebar primitives |
+| `modules.css` | your components — most CSS ends up here |
+| `utilities.css` | single-purpose helpers |
+| `pages.css` | one-off page styling |
+
+### Why layers
+
+Later layers beat earlier ones **regardless of selector specificity**. A
+`.text-center` utility overrides a `.card h2` rule without `!important` and
+without specificity games. Put a rule in the right layer and it wins.
+
+Anything outside a layer beats everything inside one, which is your escape
+hatch.
+
+### Coming from the Sass version
+
+| Sass | Now |
+| --- | --- |
+| `$purple` | `var(--purple-500)` in `tokens.css` |
+| `&:hover { }` | same — native CSS nesting |
+| `@include mq-medium { }` | `@media (width < 48rem) { }` |
+| `@import "partial"` | `@import url("partial.css") layer(x)` |
+| `_normalize.scss` | `reset.css` |
+| `.container.wide` | unchanged |
+
+Custom properties beat Sass variables in one important way: they exist at
+runtime. Change one in DevTools and the page reacts. Dark mode is a dozen
+reassignments in a `prefers-color-scheme` block rather than a second
+compiled theme.
+
+## JavaScript
+
+`wwwroot/js/main.js` is an ES module, loaded deferred.
+
+Most interactivity needs no JS file at all — Alpine reads directives straight
+off your markup:
+
+```html
+<div x-data="{ open: false }" @click.outside="open = false">
+    <button @click="open = !open" :aria-expanded="open">Menu</button>
+    <ul x-show="open" x-transition x-cloak>
+        <li><a href="/one">One</a></li>
+    </ul>
+</div>
+```
+
+`x-data` state · `x-model` binding · `x-for` loops · `x-show`/`x-if`
+conditionals · `x-on` events · `x-transition` animation.
+
+For logic too big for an attribute, register a component in `main.js` with
+`Alpine.data()` and apply it with `x-data="name"`. Three examples ship in
+that file. Global state goes in `Alpine.store()`.
+
+Docs: <https://alpinejs.dev>
+
+> **Razor gotcha:** `@` starts a C# expression in `.cshtml`. Write `@@click`
+> to emit a literal `@click`, or use the longhand `x-on:click`.
+
+## Icons
+
+FontAwesome 7 Free, self-hosted:
+
+```html
+<i class="fa-solid fa-horse-head"></i>
+<i class="fa-regular fa-star"></i>
+<i class="fa-brands fa-github"></i>
+```
+
+Browse at <https://fontawesome.com/search?o=r&m=free>. Not using icons? Delete
+`wwwroot/lib/fontawesome/` and its `<link>` in `_Layout.cshtml`.
+
+### Updating it
+
+```sh
+VERSION=7.3.1
+TMP=$(mktemp -d)
+curl -sL "https://registry.npmjs.org/@fortawesome/fontawesome-free/-/fontawesome-free-$VERSION.tgz" | tar -xz -C "$TMP"
+cp "$TMP/package/css/all.min.css" wwwroot/lib/fontawesome/fontawesome.min.css
+cp "$TMP"/package/webfonts/*.woff2 wwwroot/lib/fontawesome/webfonts/
+sed -i '' 's|url(\.\./webfonts/|url(webfonts/|g' wwwroot/lib/fontawesome/fontawesome.min.css
+rm -rf "$TMP"
+```
+
+That last `sed` matters — FontAwesome ships paths assuming `css/` and
+`webfonts/` are siblings, and we keep them nested together instead.
+
+### Updating Alpine
+
+```sh
+curl -sL "https://cdn.jsdelivr.net/npm/alpinejs@3.17.1/dist/cdn.min.js" \
+     -o wwwroot/lib/alpine/alpine.min.js
+```
+
+## Custom fonts
+
+1. Drop a `.woff2` into `wwwroot/fonts/`
+2. Uncomment the matching `@font-face` in `wwwroot/css/fonts.css`
+3. Put the family name at the front of `--font-sans` in `tokens.css`
+
+`fonts.css` has ready-to-use blocks for variable fonts, static weights,
+`unicode-range` subsetting, and metric-override fallbacks that eliminate
+layout shift on font swap. See `wwwroot/fonts/README.md` for conversion and
+subsetting commands.
+
+Defaults are system font stacks, so a fresh clone renders instantly with no
+font downloads.
+
+## Static site export
+
+Visit `/Build` while the app is running. It crawls every Razor page over HTTP,
+writes the rendered HTML to `static/`, and copies `wwwroot` alongside it.
+Upload that folder anywhere.
+
+Pages matching the exclusion list are skipped. `Index` maps to `index.html`;
+everything else gets `route/index.html` so URLs stay extensionless.
+
+## Deploy
+
+```sh
+dotnet publish -c Release
+```
+
+Output lands in `bin/Release/net10.0/publish/`.
+
+## License
+
+MIT

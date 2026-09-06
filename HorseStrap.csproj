@@ -1,24 +1,21 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp2.1</TargetFramework>
-        <HorseRoot></HorseRoot>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>HorseStrap</RootNamespace>
     </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.App" />
-    </ItemGroup>
+    <!--
+        No PackageReference entries. No npm. Nothing to restore but the SDK itself.
+        The ASP.NET Core framework reference is implicit for Microsoft.NET.Sdk.Web.
+    -->
 
-    <Target Name="NpmInstall" BeforeTargets="Build" Condition=" !Exists('$(HorseRoot)node_modules') ">
-        <Message Importance="high" Text="Running npm install. You'll be horsing around in no time..." />
-        <Exec Command="npm install" />
-    </Target>
-    
-    <Target Name="BuildCSS" BeforeTargets="Build">
-        <Exec Command="npm run build-css" ContinueOnError="true">
-            <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfExec" />
-            <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-        </Exec>
-    </Target>
+    <ItemGroup>
+        <!-- Static site generator output. Never compile or publish it. -->
+        <Content Remove="static/**" />
+        <None Remove="static/**" />
+    </ItemGroup>
 
 </Project>

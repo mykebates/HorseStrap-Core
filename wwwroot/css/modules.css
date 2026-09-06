@@ -1,0 +1,125 @@
+/* =========================================================================
+   modules.css — components
+
+   Most of your CSS ends up here. A module is a self-contained, reusable
+   piece of UI: buttons, cards, nav, modals, accordions.
+
+   Two starters are included to establish the pattern. Delete them if you
+   don't want them.
+
+   Once this file gets long, split it:
+       wwwroot/css/modules/button.css
+       wwwroot/css/modules/card.css
+   ...and swap the import in main.css for one line per file, all using
+   layer(modules).
+   ========================================================================= */
+
+/* --- Button ------------------------------------------------------------ */
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2xs);
+
+    padding: var(--space-2xs) var(--space-md);
+
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-tight);
+    text-decoration: none;
+    white-space: nowrap;
+
+    color: var(--color-accent-contrast);
+    background-color: var(--color-accent);
+    border: var(--border-thin) solid transparent;
+    border-radius: var(--radius-md);
+
+    transition:
+        background-color var(--duration-fast) var(--ease-out),
+        border-color var(--duration-fast) var(--ease-out),
+        color var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out);
+
+    &:hover {
+        color: var(--color-accent-contrast);
+        background-color: var(--color-accent-hover);
+        text-decoration: none;
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
+
+    &[disabled],
+    &[aria-disabled="true"] {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Variants */
+    &.outline {
+        color: var(--color-accent);
+        background-color: transparent;
+        border-color: currentColor;
+
+        &:hover {
+            color: var(--color-accent-contrast);
+            background-color: var(--color-accent);
+        }
+    }
+
+    &.ghost {
+        color: var(--color-text);
+        background-color: transparent;
+
+        &:hover {
+            background-color: var(--color-surface-raised);
+        }
+    }
+
+    /* Sizes */
+    &.small {
+        padding: var(--space-3xs) var(--space-xs);
+        font-size: var(--text-xs);
+    }
+
+    &.large {
+        padding: var(--space-xs) var(--space-lg);
+        font-size: var(--text-base);
+    }
+
+    &.block {
+        display: flex;
+        inline-size: 100%;
+    }
+}
+
+/* --- Card -------------------------------------------------------------- */
+
+.card {
+    padding: var(--space-md);
+    background-color: var(--color-surface);
+    border: var(--border-thin) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+
+    transition:
+        box-shadow var(--duration-base) var(--ease-out),
+        transform var(--duration-base) var(--ease-out);
+
+    &.interactive:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    /* Media bleeds to the card edge, above the padding. */
+    > img:first-child {
+        margin: calc(var(--space-md) * -1);
+        margin-block-end: var(--space-md);
+        max-inline-size: calc(100% + var(--space-md) * 2);
+        border-start-start-radius: var(--radius-lg);
+        border-start-end-radius: var(--radius-lg);
+    }
+}

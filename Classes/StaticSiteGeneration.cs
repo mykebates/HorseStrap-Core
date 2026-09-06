@@ -1,100 +1,169 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.IO;
+namespace HorseStrap.Classes;
 
-namespace MethodConf.Classes
+/// <summary>
+/// Crawls the app's own Razor Pages over HTTP and writes the rendered HTML
+/// to disk, producing a static site you can host anywhere.
+///
+/// Rewritten from the original: WebClient (obsolete since .NET 6) is now
+/// HttpClient, the synchronous file walk is async, and failures surface as
+/// results instead of being swallowed into an unused local.
+/// </summary>
+public static class StaticSiteGeneration
 {
-    public class StaticSiteGeneration
+    /// <summary>Outcome of exporting a single page.</summary>
+    public record ExportResult(string Page, bool Success, string Message);
+
+    /// <summary>
+    /// Finds candidate .cshtml pages under <paramref name="pagesRoot"/>,
+    /// skipping anything whose path contains one of
+    /// <paramref name="exclusions"/> (case-insensitive).
+    /// </summary>
+    public static IReadOnlyList<string> GetPages(
+        string pagesRoot,
+        IEnumerable<string> exclusions)
     {
-        public static IList<string> GetFiles(string[] exclusions)
+        if (!Directory.Exists(pagesRoot))
         {
-            IEnumerable<string> directory;
-            IList<string> normalizedExclusions = new List<string>();
-
-            exclusions.ToList().ForEach(FE => normalizedExclusions.Add(FE.ToLower()));
-
-            try
-            {
-                directory = Directory.EnumerateFiles("Pages", "*", SearchOption.AllDirectories);
-            }
-            catch (Exception e)
-            {
-                // haxors to get the pages directory from the publish folder... gotta be a better way
-                Console.WriteLine(e);
-                directory = Directory.EnumerateFiles("../../../../Pages", "*", SearchOption.AllDirectories);
-            }
-
-            return directory.Where(W => normalizedExclusions.Where(W2 => W.ToLower().Contains(W2)).Count() == 0).ToList();
+            return [];
         }
 
-        public static KeyValuePair<bool, string> VerifyLocations(string[] locations, bool create = true)
-        {
-            KeyValuePair<bool, string> status = new KeyValuePair<bool, string>(true, string.Empty);
+        var skip = exclusions
+            .Select(e => e.Trim())
+            .Where(e => e.Length > 0)
+            .ToArray();
 
-            for (int i = 0; i < locations.Length; i++)
+        return Directory
+            .EnumerateFiles(pagesRoot, "*.cshtml", SearchOption.AllDirectories)
+            .Where(path =>
             {
-                if (!Directory.Exists(locations[i]))
-                {
-                    if (create) Directory.CreateDirectory(locations[i]);
-                    else
-                    {
-                        status = new KeyValuePair<bool, string>(false, locations[i] + ": Does not exist and flagged to not create");
-                        i = locations.Length;
-                    }
-                }
-            }
+                var relative = Path.GetRelativePath(pagesRoot, path);
+                return !skip.Any(s =>
+                    relative.Contains(s, StringComparison.OrdinalIgnoreCase));
+            })
+            .Order(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
 
-            return status;
+    /// <summary>
+    /// Converts an absolute .cshtml path into the route it is served at.
+    /// "Pages/About/Team.cshtml" becomes "About/Team"; Index becomes "".
+    /// </summary>
+    public static string ToRoute(string pagesRoot, string cshtmlPath)
+    {
+        var relative = Path.GetRelativePath(pagesRoot, cshtmlPath);
+
+        // Normalize Windows separators to URL separators.
+        relative = relative.Replace(Path.DirectorySeparatorChar, '/');
+
+        if (relative.EndsWith(".cshtml", StringComparison.OrdinalIgnoreCase))
+        {
+            relative = relative[..^".cshtml".Length];
         }
 
-        public static bool CopyDirectory(string source, string destination)
+        // "Index" is served at the directory root.
+        if (relative.Equals("Index", StringComparison.OrdinalIgnoreCase))
         {
-            var status = true;
-
-            try
-            {
-                foreach (string dir in Directory.GetDirectories(source, "*", SearchOption.AllDirectories))
-                {
-                    var newDir = destination + dir.Substring(source.Length);
-
-                    if (!Directory.Exists(newDir))
-                        Directory.CreateDirectory(newDir);
-                }
-
-                foreach (string file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
-                {
-                    File.Copy(file, destination + file.Substring(source.Length), true);
-                }
-            }
-            catch (Exception ex)
-            {
-                var i = ex;
-
-                status = false;
-            }
-
-            return status;
+            return string.Empty;
         }
 
-        public static string PrepForDownload(string siteSaveLocation, string filename)
+        if (relative.EndsWith("/Index", StringComparison.OrdinalIgnoreCase))
         {
-            var file = string.Empty;
+            relative = relative[..^"/Index".Length];
+        }
 
-            if (filename.ToLower() != "index")
+        return relative;
+    }
+
+    /// <summary>
+    /// Maps a route to its output file, using the directory/index.html
+    /// convention so URLs stay extensionless when served statically.
+    /// </summary>
+    public static string ToOutputPath(string outputRoot, string route)
+    {
+        return string.IsNullOrEmpty(route)
+            ? Path.Combine(outputRoot, "index.html")
+            : Path.Combine(
+                outputRoot,
+                route.Replace('/', Path.DirectorySeparatorChar),
+                "index.html");
+    }
+
+    /// <summary>Ensures each directory exists, creating it if needed.</summary>
+    public static void EnsureDirectories(params string[] paths)
+    {
+        foreach (var path in paths)
+        {
+            if (!string.IsNullOrWhiteSpace(path))
             {
-                var newDir = Path.Combine(siteSaveLocation, filename);
-
-                if (!Directory.Exists(newDir))
-                    Directory.CreateDirectory(newDir);
-
-                file = Path.Combine(newDir, "index.html");
+                Directory.CreateDirectory(path);
             }
-            else
-                file = siteSaveLocation + filename.ToLower() + ".html";
+        }
+    }
 
-            return file;
+    /// <summary>
+    /// Recursively copies <paramref name="source"/> into
+    /// <paramref name="destination"/>, overwriting existing files.
+    /// </summary>
+    public static void CopyDirectory(string source, string destination)
+    {
+        if (!Directory.Exists(source))
+        {
+            return;
+        }
+
+        foreach (var dir in Directory.EnumerateDirectories(
+                     source, "*", SearchOption.AllDirectories))
+        {
+            Directory.CreateDirectory(
+                Path.Combine(destination, Path.GetRelativePath(source, dir)));
+        }
+
+        foreach (var file in Directory.EnumerateFiles(
+                     source, "*", SearchOption.AllDirectories))
+        {
+            var target = Path.Combine(
+                destination, Path.GetRelativePath(source, file));
+
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            File.Copy(file, target, overwrite: true);
+        }
+    }
+
+    /// <summary>
+    /// Requests a single route and writes the response body to disk.
+    /// </summary>
+    public static async Task<ExportResult> ExportPageAsync(
+        HttpClient client,
+        string baseUrl,
+        string route,
+        string outputRoot,
+        CancellationToken cancellationToken = default)
+    {
+        var label = string.IsNullOrEmpty(route) ? "/" : $"/{route}";
+        var url = $"{baseUrl.TrimEnd('/')}/{route}";
+
+        try
+        {
+            using var response = await client.GetAsync(url, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return new ExportResult(
+                    label, false, $"HTTP {(int)response.StatusCode}");
+            }
+
+            var html = await response.Content.ReadAsStringAsync(cancellationToken);
+            var target = ToOutputPath(outputRoot, route);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+            await File.WriteAllTextAsync(target, html, cancellationToken);
+
+            return new ExportResult(
+                label, true, Path.GetRelativePath(outputRoot, target));
+        }
+        catch (Exception ex)
+        {
+            return new ExportResult(label, false, ex.Message);
         }
     }
 }

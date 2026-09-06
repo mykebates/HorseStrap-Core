@@ -1,25 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+var builder = WebApplication.CreateBuilder(args);
 
-namespace CareToLearnUI
+builder.Services.AddRazorPages();
+
+// Used by the static site generator to crawl its own pages.
+builder.Services.AddHttpClient();
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            BuildWebHost(args).Run();
-        }
-
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .Build();
-    }
+    app.UseDeveloperExceptionPage();
 }
+else
+{
+    app.UseExceptionHandler("/Error");
+}
+
+// Plain UseStaticFiles rather than MapStaticAssets: the fingerprinted URLs
+// MapStaticAssets emits would not resolve in the flat file copy that the
+// static site generator produces.
+app.UseStaticFiles();
+
+app.MapRazorPages();
+
+app.Run();

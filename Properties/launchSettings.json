@@ -1,9 +1,20 @@
 {
+    "$schema": "https://json.schemastore.org/launchsettings.json",
     "profiles": {
-        "Kestrel": {
+        "https": {
             "commandName": "Project",
             "launchBrowser": true,
             "applicationUrl": "https://localhost:5001;http://localhost:5000",
+            "hotReloadProfile": "aspnetcore",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        "http": {
+            "commandName": "Project",
+            "launchBrowser": true,
+            "applicationUrl": "http://localhost:5000",
+            "hotReloadProfile": "aspnetcore",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }

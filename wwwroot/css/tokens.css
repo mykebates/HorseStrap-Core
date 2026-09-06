@@ -1,0 +1,200 @@
+/* =========================================================================
+   tokens.css
+
+   Every design decision lives here as a custom property. This is the
+   replacement for assets/sass/base/_variables.scss.
+
+   The upgrade over Sass variables: these are real values that exist in
+   the browser at runtime. You can read them in JS, override them per
+   component, flip them inside a media query, or change them in DevTools
+   and watch the page react. A `$purple` compiled away at build time
+   could do none of that.
+   ========================================================================= */
+
+:root {
+    /* --- Type families -------------------------------------------------
+       Defaults are system font stacks: zero network cost, instant render,
+       native feel per OS. To adopt a custom font, uncomment the matching
+       @font-face in fonts.css and put its family name at the FRONT of
+       the stack here. The rest stays as fallback. */
+    --font-sans:
+        system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+        Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+        "Segoe UI Emoji";
+    --font-serif:
+        ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    --font-mono:
+        ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+        "Liberation Mono", monospace;
+
+    /* --- Type scale ----------------------------------------------------
+       Fluid via clamp(): min at small screens, max at large, smoothly
+       interpolated between. No breakpoint jumps, no media queries. */
+    --text-xs: clamp(0.75rem, 0.72rem + 0.15vi, 0.8125rem);
+    --text-sm: clamp(0.875rem, 0.84rem + 0.18vi, 0.9375rem);
+    --text-base: clamp(1rem, 0.95rem + 0.25vi, 1.125rem);
+    --text-lg: clamp(1.125rem, 1.05rem + 0.4vi, 1.375rem);
+    --text-xl: clamp(1.375rem, 1.2rem + 0.85vi, 1.875rem);
+    --text-2xl: clamp(1.75rem, 1.4rem + 1.6vi, 2.75rem);
+    --text-3xl: clamp(2.25rem, 1.6rem + 3vi, 4rem);
+
+    --leading-tight: 1.15;
+    --leading-snug: 1.35;
+    --leading-normal: 1.6;
+    --leading-loose: 1.8;
+
+    --weight-light: 300;
+    --weight-normal: 400;
+    --weight-medium: 500;
+    --weight-bold: 700;
+
+    --tracking-tight: -0.02em;
+    --tracking-normal: 0em;
+    --tracking-wide: 0.05em;
+
+    /* --- Spacing scale -------------------------------------------------
+       Roughly a 1.5 ratio. Use these instead of magic numbers. */
+    --space-3xs: 0.25rem;
+    --space-2xs: 0.5rem;
+    --space-xs: 0.75rem;
+    --space-sm: 1rem;
+    --space-md: 1.5rem;
+    --space-lg: 2rem;
+    --space-xl: 3rem;
+    --space-2xl: 4.5rem;
+    --space-3xl: 7rem;
+
+    /* --- Color ---------------------------------------------------------
+       Authored in oklch: perceptually uniform, so equal numeric steps
+       look like equal visual steps, and it reaches colors sRGB hex
+       cannot. Baseline in all current browsers. */
+
+    /* The original HorseStrap purple (#3a333f), now with a real ramp. */
+    --purple-50: oklch(96% 0.008 320);
+    --purple-100: oklch(91% 0.016 320);
+    --purple-200: oklch(82% 0.03 320);
+    --purple-300: oklch(70% 0.045 320);
+    --purple-400: oklch(58% 0.055 320);
+    --purple-500: oklch(46% 0.055 320);
+    --purple-600: oklch(38% 0.05 320);
+    --purple-700: oklch(32% 0.04 320);
+    --purple-800: oklch(27% 0.03 320); /* ≈ #3a333f */
+    --purple-900: oklch(21% 0.022 320);
+    --purple-950: oklch(15% 0.018 320);
+
+    --gray-50: oklch(98% 0.002 250);
+    --gray-100: oklch(95% 0.004 250);
+    --gray-200: oklch(89% 0.006 250);
+    --gray-300: oklch(80% 0.008 250);
+    --gray-400: oklch(66% 0.01 250);
+    --gray-500: oklch(54% 0.012 250);
+    --gray-600: oklch(44% 0.012 250);
+    --gray-700: oklch(36% 0.011 250);
+    --gray-800: oklch(27% 0.009 250);
+    --gray-900: oklch(19% 0.007 250);
+    --gray-950: oklch(13% 0.006 250);
+
+    /* --- Semantic aliases ----------------------------------------------
+       Components should reference THESE, never the raw ramps above.
+       That is what makes the dark mode block below a few lines instead
+       of a full second theme. */
+    --color-bg: var(--gray-50);
+    --color-surface: #fff;
+    --color-surface-raised: #fff;
+    --color-text: var(--gray-900);
+    --color-text-muted: var(--gray-600);
+    --color-text-subtle: var(--gray-500);
+    --color-border: var(--gray-200);
+    --color-accent: var(--purple-500);
+    --color-accent-hover: var(--purple-600);
+    --color-accent-contrast: #fff;
+
+    /* --- Borders & radii ------------------------------------------------ */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 1rem;
+    --radius-full: 62.5rem;
+
+    --border-thin: 1px;
+    --border-thick: 2px;
+
+    /* --- Elevation ------------------------------------------------------ */
+    --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.06);
+    --shadow-md: 0 2px 4px oklch(0% 0 0 / 0.06), 0 4px 12px oklch(0% 0 0 / 0.08);
+    --shadow-lg: 0 4px 8px oklch(0% 0 0 / 0.07), 0 12px 32px oklch(0% 0 0 / 0.1);
+
+    /* --- Motion --------------------------------------------------------- */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --duration-fast: 120ms;
+    --duration-base: 220ms;
+    --duration-slow: 400ms;
+
+    /* --- Layout --------------------------------------------------------- */
+    --container-max: 75rem;      /* 1200px, matches the old .container    */
+    --container-wide: 100rem;    /* 1600px, matches the old .container.wide */
+    --container-prose: 65ch;
+    --container-gutter: var(--space-md);
+
+    --z-base: 1;
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-overlay: 300;
+    --z-modal: 400;
+    --z-toast: 500;
+}
+
+/* =========================================================================
+   Breakpoints
+
+   The old _breakpoints.scss shipped nine @mixin wrappers (mq-desktop,
+   mq-large-tablet, mq-lt-large-tablet, ...) purely because writing raw
+   media queries in Sass was verbose and error prone.
+
+   Modern media query range syntax makes the mixins pointless — you can
+   write a readable comparison directly:
+
+       @media (width < 48rem)  { ... }   // below tablet
+       @media (width >= 64rem) { ... }   // desktop and up
+       @media (40rem <= width < 64rem) { ... }   // in between
+
+   Reference values (custom properties are NOT valid inside a media
+   query condition, so these are documentation, not tokens):
+
+       --bp-sm   30rem   480px    big mobile
+       --bp-md   48rem   768px    tablet
+       --bp-lg   64rem   1024px   small desktop
+       --bp-xl   87.5rem 1400px   desktop
+   ========================================================================= */
+
+/* =========================================================================
+   Dark mode
+
+   Only the semantic aliases are reassigned. Every component that used
+   them correctly adapts for free.
+   ========================================================================= */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-bg: var(--gray-950);
+        --color-surface: var(--gray-900);
+        --color-surface-raised: var(--gray-800);
+        --color-text: var(--gray-100);
+        --color-text-muted: var(--gray-400);
+        --color-text-subtle: var(--gray-500);
+        --color-border: var(--gray-800);
+        --color-accent: var(--purple-300);
+        --color-accent-hover: var(--purple-200);
+        --color-accent-contrast: var(--gray-950);
+
+        --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.3);
+        --shadow-md: 0 2px 4px oklch(0% 0 0 / 0.3), 0 4px 12px oklch(0% 0 0 / 0.4);
+        --shadow-lg: 0 4px 8px oklch(0% 0 0 / 0.35), 0 12px 32px oklch(0% 0 0 / 0.45);
+    }
+}
+
+/* Tell the browser our palette covers both, so form controls,
+   scrollbars and the like match. */
+:root {
+    color-scheme: light dark;
+}

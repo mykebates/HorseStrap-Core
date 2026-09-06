@@ -1,51 +1,68 @@
 @page
-@using Microsoft.AspNetCore.Http.Extensions
-@model MethodConf.Pages.Build
-
+@model BuildModel
 @{
-    Layout = null;
-    //var baseUrl = "/" + HttpContext.Request.Host + "/";
-    var request = HttpContext.Request;
-    var fullUrl = request.Scheme + ":" + request.GetDisplayUrl();
-    var baseUrl = fullUrl.Replace(request.Path, "/");
-    baseUrl = baseUrl.Replace("http:http:", "http:");
-    baseUrl = baseUrl.Replace("https:https:", "https:");
+    ViewData["Title"] = "Build static site";
 }
-<style>
-    input[type=text] { width: 400px; }
-    li { margin: 1em; display: flex; }
-    label { width: 300px; }
-</style>
 
-<form method="post">
-    <div class="container pad_last_item">
-        <div class="padding_top_70">@Model.Messages</div>
-        @if (Model.FilesDownloaded != null && Model.FilesDownloaded.Length > 0)
+<main class="page-build">
+    <div class="container prose stack">
+
+        <h1>Build static site</h1>
+
+        <p class="text-muted">
+            Crawls every Razor page over HTTP and writes the rendered HTML to
+            disk, alongside a copy of <code>wwwroot</code>. The result is a
+            plain folder of files you can host anywhere.
+        </p>
+
+        @if (Model.Message is not null)
         {
-            <ul>@foreach(string f in Model.FilesDownloaded) { <li>@f</li> }</ul>
+            <p><strong>@Model.Message</strong></p>
         }
-        else
-        {
-            <ul>
-                <li>
-                    <label>Site URL</label>
-                    <input asp-for="BaseURL" value="@baseUrl"/>
-                </li>
-                <li>
-                    <label>Site Save Folder</label>
-                    <input asp-for="SiteSaveLocation" />
-                </li>
-                <li>
-                    <label>WWWRoot Folder</label>
-                    <input asp-for="Root" />
-                </li>
-                <li>
-                    <label>File Name Exclusions (comma separated)</label>
-                    <input asp-for="Exclusions" />
-                </li>
 
-                <li><input type="submit" value="submit" /></li>
+        @if (Model.Results.Count > 0)
+        {
+            <ul role="list" class="build-results stack" style="--stack-space: var(--space-3xs);">
+                @foreach (var result in Model.Results)
+                {
+                    <li class="@(result.Success ? "build-ok" : "build-fail")">
+                        @(result.Success ? "✓" : "✗") @result.Page — @result.Message
+                    </li>
+                }
             </ul>
         }
+
+        <form method="post" class="stack">
+
+            <div class="build-field">
+                <label asp-for="BaseUrl">Site URL</label>
+                <input asp-for="BaseUrl" type="text" />
+            </div>
+
+            <div class="build-field">
+                <label asp-for="OutputPath">Output folder</label>
+                <input asp-for="OutputPath" type="text" />
+            </div>
+
+            <div class="build-field">
+                <label asp-for="WebRoot">wwwroot folder</label>
+                <input asp-for="WebRoot" type="text" />
+            </div>
+
+            <div class="build-field">
+                <label asp-for="Exclusions">Exclude paths containing</label>
+                <input asp-for="Exclusions" type="text" />
+            </div>
+
+            <div class="cluster">
+                <button type="submit" class="button">
+                    <i class="fa-solid fa-hammer" aria-hidden="true"></i>
+                    Build
+                </button>
+                <a href="/" class="button ghost">Back</a>
+            </div>
+
+        </form>
+
     </div>
-</form>
+</main>

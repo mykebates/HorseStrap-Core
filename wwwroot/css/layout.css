@@ -1,0 +1,117 @@
+/* =========================================================================
+   layout.css — layout primitives
+
+   Composable containers that handle arrangement and nothing else.
+   No colors, no typography, no component identity.
+   ========================================================================= */
+
+/* --- Container ---------------------------------------------------------
+   Direct replacement for the old .container / .container.wide. */
+
+.container {
+    inline-size: 100%;
+    max-inline-size: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--container-gutter);
+    position: relative;
+
+    &.wide {
+        max-inline-size: var(--container-wide);
+    }
+
+    &.prose {
+        max-inline-size: var(--container-prose);
+    }
+
+    &.flush {
+        padding-inline: 0;
+    }
+}
+
+/* --- Stack -------------------------------------------------------------
+   Even vertical rhythm between children. Override per-instance with
+   style="--stack-space: var(--space-lg)". */
+
+.stack {
+    display: flex;
+    flex-direction: column;
+
+    > * + * {
+        margin-block-start: var(--stack-space, var(--space-md));
+    }
+}
+
+/* --- Cluster -----------------------------------------------------------
+   Horizontal group that wraps gracefully. Nav bars, tag lists, button
+   rows. */
+
+.cluster {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--cluster-space, var(--space-sm));
+    align-items: var(--cluster-align, center);
+    justify-content: var(--cluster-justify, flex-start);
+}
+
+/* --- Auto grid ---------------------------------------------------------
+   Responsive columns with no media queries. Items fill the row, then
+   wrap when they'd get narrower than --grid-min. */
+
+.grid-auto {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(min(var(--grid-min, 18rem), 100%), 1fr));
+    gap: var(--grid-gap, var(--space-md));
+}
+
+/* --- Sidebar -----------------------------------------------------------
+   Content plus a fixed-width sidebar that collapses to stacked when
+   there isn't room. Again, no media queries. */
+
+.with-sidebar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sidebar-gap, var(--space-lg));
+
+    > :first-child {
+        flex-basis: var(--sidebar-width, 18rem);
+        flex-grow: 1;
+    }
+
+    > :last-child {
+        flex-basis: 0;
+        flex-grow: 999;
+        min-inline-size: var(--sidebar-content-min, 50%);
+    }
+}
+
+/* --- Center ------------------------------------------------------------
+   Dead center, both axes. Full viewport height by default. */
+
+.center {
+    display: grid;
+    place-items: center;
+    min-block-size: var(--center-height, 100svb);
+}
+
+/* --- Frame -------------------------------------------------------------
+   Locks media to an aspect ratio and crops the overflow. */
+
+.frame {
+    aspect-ratio: var(--frame-ratio, 16 / 9);
+    overflow: hidden;
+
+    > img,
+    > video {
+        inline-size: 100%;
+        block-size: 100%;
+        object-fit: cover;
+    }
+}
+
+/* --- Section -----------------------------------------------------------
+   Consistent vertical padding for page bands. */
+
+.section {
+    padding-block: var(--section-space, var(--space-2xl));
+}

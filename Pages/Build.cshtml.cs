@@ -1,80 +1,83 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using System;
+using HorseStrap.Classes;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using Microsoft.AspNetCore.Hosting;
-using MethodConf.Classes;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace MethodConf.Pages
+namespace HorseStrap.Pages;
+
+public class BuildModel : PageModel
 {
-    public class Build : PageModel
+    private readonly IWebHostEnvironment _env;
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public BuildModel(
+        IWebHostEnvironment env,
+        IHttpClientFactory httpClientFactory)
     {
-        private IHostingEnvironment _hostingEnvironment;
-        
-        [BindProperty]
-        public String BaseURL { get; set; }
-        [BindProperty]
-        public string SiteSaveLocation { get; set; }
-        [BindProperty]
-        public String Root { get; set; }
-        [BindProperty]
-        public string Exclusions { get; set; }
+        _env = env;
+        _httpClientFactory = httpClientFactory;
 
-        public string Messages { get; set; }
+        OutputPath = Path.Combine(_env.ContentRootPath, "static");
+        WebRoot = _env.WebRootPath;
+    }
 
-        public String[] FilesDownloaded { get; set; }
+    [BindProperty]
+    public string BaseUrl { get; set; } = string.Empty;
 
-        public Build(IHostingEnvironment hostingEnvironment)
+    [BindProperty]
+    public string OutputPath { get; set; }
+
+    [BindProperty]
+    public string WebRoot { get; set; }
+
+    [BindProperty]
+    public string Exclusions { get; set; } = "_,Build,Error";
+
+    public string? Message { get; private set; }
+
+    public IReadOnlyList<StaticSiteGeneration.ExportResult> Results
+    { get; private set; } = [];
+
+    public void OnGet()
+    {
+        BaseUrl = $"{Request.Scheme}://{Request.Host}";
+    }
+
+    public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
+    {
+        var pagesRoot = Path.Combine(_env.ContentRootPath, "Pages");
+
+        var pages = StaticSiteGeneration.GetPages(
+            pagesRoot,
+            Exclusions.Split(',', StringSplitOptions.RemoveEmptyEntries));
+
+        if (pages.Count == 0)
         {
-            _hostingEnvironment = hostingEnvironment;
-            Exclusions = "_,cshtml.cs,Partials,GenerateStaticSite,Build";
-            SiteSaveLocation = _hostingEnvironment.ContentRootPath + Path.DirectorySeparatorChar + "static" + Path.DirectorySeparatorChar;
-            Root = _hostingEnvironment.WebRootPath;
-        }
-        
-        public void OnGet()
-        {
-            
-        }
-        
-        public IActionResult OnPost()
-        {
-            IList<string> filesDld = new List<String>();
-
-            using (var client = new WebClient())
-            {
-                //verify locations and build folders
-                var status = StaticSiteGeneration.VerifyLocations(new[] { SiteSaveLocation, Root });
-
-                if (!status.Key) return Page();
-
-                if (!StaticSiteGeneration.CopyDirectory(Root, SiteSaveLocation)) return Page();
-
-                var files = StaticSiteGeneration.GetFiles(Exclusions.Split(","));
-                
-                foreach (var f in files)
-                {
-                    var file = f.Split("Pages")[1].Replace("/", "").Replace(@"\", "").Replace(".cshtml", "");
-                    var url = BaseURL + file + "?horse_build=true";
-                    var saveLocationFolder = SiteSaveLocation + file;
-                    var saveLocationIndex = saveLocationFolder + "/index.html";
-
-                    try
-                    {
-                        var save = StaticSiteGeneration.PrepForDownload(SiteSaveLocation, file);
-                        client.DownloadFile(url, save);
-                        filesDld.Add(file);
-                    }
-                    catch (Exception ex)
-                    {
-                        var i = ex;
-                    }
-                }
-            }
-
+            Message = $"No pages found under {pagesRoot}.";
             return Page();
         }
+
+        StaticSiteGeneration.EnsureDirectories(OutputPath);
+
+        // Copy wwwroot first so CSS, JS, fonts and images sit alongside
+        // the HTML we're about to write.
+        StaticSiteGeneration.CopyDirectory(WebRoot, OutputPath);
+
+        var client = _httpClientFactory.CreateClient();
+        var results = new List<StaticSiteGeneration.ExportResult>();
+
+        foreach (var page in pages)
+        {
+            var route = StaticSiteGeneration.ToRoute(pagesRoot, page);
+
+            results.Add(await StaticSiteGeneration.ExportPageAsync(
+                client, BaseUrl, route, OutputPath, cancellationToken));
+        }
+
+        Results = results;
+
+        var ok = results.Count(r => r.Success);
+        Message = $"Exported {ok} of {results.Count} pages to {OutputPath}";
+
+        return Page();
     }
 }
