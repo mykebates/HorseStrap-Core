@@ -13,6 +13,31 @@
    Delete this whole block once you start building for real. */
 
 .page-home {
+    /* This hero is dark in BOTH color schemes, so pin the semantic tokens to
+       their dark values right here. Every component dropped inside then
+       adapts for free and renders identically no matter what the visitor's
+       system preference is.
+
+       This is not decoration — it is the fix for a real bug. Setting only
+       `color` on this element does nothing for children that reference the
+       tokens themselves. `.button.ghost` uses `color: var(--color-text)`,
+       which in LIGHT mode resolves to near-black and vanishes against this
+       background. Re-point the tokens, not the text colour.
+
+       Rule of thumb: any region with a hard-coded background must reassign
+       the semantic aliases it sits on top of. */
+    color-scheme: dark;
+
+    --color-surface: var(--purple-800);
+    --color-surface-raised: var(--purple-700);
+    --color-text: var(--gray-100);
+    --color-text-muted: var(--gray-300);
+    --color-text-subtle: var(--gray-400);
+    --color-border: var(--purple-700);
+    --color-accent: var(--purple-300);
+    --color-accent-hover: var(--purple-200);
+    --color-accent-contrast: var(--gray-950);
+
     display: grid;
     place-items: center;
     min-block-size: 100svb;
@@ -25,7 +50,7 @@
             var(--purple-900) 55%,
             var(--purple-950) 100%
         );
-    color: var(--gray-100);
+    color: var(--color-text);
 
     & .home-inner {
         display: flex;
@@ -47,16 +72,15 @@
     }
 
     & p {
-        color: var(--gray-300);
+        color: var(--color-text-muted);
         text-wrap: pretty;
     }
 
-    /* Inherit the light-on-dark treatment for links here. */
     & a:not(.button) {
-        color: var(--purple-200);
+        color: var(--color-accent);
 
         &:hover {
-            color: #fff;
+            color: var(--color-text);
         }
     }
 }
