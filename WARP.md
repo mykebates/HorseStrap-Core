@@ -13,6 +13,9 @@ minimum dependencies and zero build step, not features.
 - **Alpine.js 3.17.1** — vendored, `wwwroot/lib/alpine/`
 - **FontAwesome Free 7.3.1** — vendored, `wwwroot/lib/fontawesome/`, woff2 only
 
+Vendored versions are pinned in `scripts/vendor.sh`, which is the only place
+they are declared. Update them with that script, not by hand.
+
 Zero NuGet packages. Zero npm packages. No `package.json` — if one appears,
 something went wrong.
 
@@ -44,7 +47,14 @@ dotnet watch                 # dev server + live reload, https://localhost:5001
 dotnet run                   # no watcher
 dotnet build                 # compile
 dotnet publish -c Release    # → bin/Release/net10.0/publish/
+
+./scripts/vendor.sh          # reinstall pinned Alpine + FontAwesome
+./scripts/vendor.sh --latest # bump both to latest, re-pin in the script
 ```
+
+`vendor.sh` is idempotent — running it without `--latest` leaves the working
+tree clean. It handles the woff2-only trim and the `../webfonts/` →
+`webfonts/` path rewrite that FontAwesome otherwise requires by hand.
 
 Static site export: run the app, visit `/Build`, submit. Output → `static/`.
 
@@ -53,6 +63,8 @@ Static site export: run the app, visit `/Build`, submit. Output → `static/`.
 ```
 Program.cs              minimal hosting, ~25 lines
 HorseStrap.csproj       net10.0, no PackageReferences
+scripts/
+  vendor.sh             fetches + patches vendored Alpine and FontAwesome
 Classes/
   StaticSiteGeneration.cs   crawl + export helpers
 Pages/

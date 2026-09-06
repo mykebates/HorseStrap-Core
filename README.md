@@ -149,27 +149,26 @@ FontAwesome 7 Free, self-hosted:
 Browse at <https://fontawesome.com/search?o=r&m=free>. Not using icons? Delete
 `wwwroot/lib/fontawesome/` and its `<link>` in `_Layout.cshtml`.
 
-### Updating it
+## Updating Alpine and FontAwesome
+
+Both are vendored into `wwwroot/lib/`. One script fetches them:
 
 ```sh
-VERSION=7.3.1
-TMP=$(mktemp -d)
-curl -sL "https://registry.npmjs.org/@fortawesome/fontawesome-free/-/fontawesome-free-$VERSION.tgz" | tar -xz -C "$TMP"
-cp "$TMP/package/css/all.min.css" wwwroot/lib/fontawesome/fontawesome.min.css
-cp "$TMP"/package/webfonts/*.woff2 wwwroot/lib/fontawesome/webfonts/
-sed -i '' 's|url(\.\./webfonts/|url(webfonts/|g' wwwroot/lib/fontawesome/fontawesome.min.css
-rm -rf "$TMP"
+./scripts/vendor.sh              # reinstall the pinned versions
+./scripts/vendor.sh --latest     # bump to latest and re-pin
+./scripts/vendor.sh alpine       # just one of them
 ```
 
-That last `sed` matters — FontAwesome ships paths assuming `css/` and
-`webfonts/` are siblings, and we keep them nested together instead.
+Versions are pinned at the top of the script. `--latest` resolves from the
+npm registry and rewrites those two lines, so a bump shows up as a real diff
+instead of a number you have to remember.
 
-### Updating Alpine
+The script also does the two things that are easy to forget by hand: it keeps
+FontAwesome to `.woff2` only, and rewrites the stock `../webfonts/` paths to
+`webfonts/`, since we nest the CSS and fonts together rather than as siblings.
 
-```sh
-curl -sL "https://cdn.jsdelivr.net/npm/alpinejs@3.17.1/dist/cdn.min.js" \
-     -o wwwroot/lib/alpine/alpine.min.js
-```
+Nothing here runs at build time — it's a deliberate, occasional action that
+commits real files.
 
 ## Custom fonts
 
