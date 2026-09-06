@@ -83,6 +83,10 @@ wwwroot/
 - **4-space indentation** everywhere (C#, CSS, JS, Razor)
 - CSS goes in the layer that matches its job; never reach for `!important`
 - All design values belong in `tokens.css` — no magic numbers in components
+- Any region with a **hard-coded background** must reassign the semantic
+  colour aliases it sits on (and set `color-scheme`), not just its own
+  `color`. Children read the tokens directly, so setting `color` alone
+  leaves them resolving against the visitor's scheme. See `.page-home`.
 - Prefer Alpine directives in markup over JS files
 - In `.cshtml`, escape Alpine's `@` as `@@` (`@@click`) or use `x-on:click`
 
